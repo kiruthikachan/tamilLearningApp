@@ -34,3 +34,24 @@ class ExampleWord(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     def __str__(self):
         return self.word
+
+class Lesson(models.Model):
+    DRAFT = "draft"
+    PUBLISHED = "published"
+    STATUS_CHOICES = [(DRAFT, "Draft"), (PUBLISHED, "Published"),]
+    title = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    content = models.TextField(blank=True)
+    display_order = models.PositiveIntegerField(default=1)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=DRAFT)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    def __str__(self):
+        return self.title
+
+class LessonLetter (models.Model):
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name="lesson_letters")
+    letter = models.ForeignKey(Letter, on_delete=models.CASCADE,related_name="lesson_letters")
+    display_order = models.PositiveIntegerField(default = 1)
+    class Meta:
+        constraints = [models.UniqueConstraint(fields= ["lesson", "letter"], name = "unique_lesson_letter")]
