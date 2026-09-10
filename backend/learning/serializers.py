@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Letter, ExampleWord, Lesson, LessonLetter
+from .models import Letter, ExampleWord, Lesson, LessonLetter, QuestionAttempt, QuizAttempt
 
 class ExampleWordSerializer(serializers.ModelSerializer):
     class Meta:
@@ -55,4 +55,52 @@ class LessonListSerializer(serializers.ModelSerializer):
             "title",
             "description",
             "display_order",
+        ]
+
+class QuizQuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuestionAttempt
+        fields = [
+            "id",
+            "question_type",
+            "prompt",
+            "options",
+        ]
+
+class QuestionResultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuestionAttempt
+        fields = [
+            "id",
+            "question_type",
+            "prompt",
+            "options",
+            "selected_answer",
+            "correct_answer",
+            "is_correct",
+        ]
+
+class QuizAttemptSerializer(serializers.ModelSerializer):
+    question_attempts = QuizQuestionSerializer(many=True, read_only = True)
+    class Meta:
+        model = QuizAttempt
+        fields = [
+            "id",
+            "lesson",
+            "started_at",
+            "question_attempts",
+        ]
+
+class QuizResultSerializer(serializers.ModelSerializer):
+    question_attempts = QuestionResultSerializer(many = True, read_only = True)
+    class Meta:
+        model = QuizAttempt
+        fields = [
+            "id",
+            "lesson",
+            "score",
+            "total_questions",
+            "started_at",
+            "completed_at",
+            "question_attempts",
         ]
