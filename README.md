@@ -50,5 +50,7 @@ The long-term architecture separates two systems:
 All educational content is independently authored using trusted Tamil linguistic resources, including:
 - Tamil Virtual Academy
 - Tamil Wiktionary
+
 Additional sources and licensing information will be documented as new content is added.
+
 No third-party instructional text, audio, or exercises are reproduced unless permitted by the applicable license or explicit permission has been obtained.
