@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from .models import Letter, ExampleWord, Lesson, LessonLetter, QuizAttempt, QuestionAttempt
-from .serializers import LetterSerializer, LessonListSerializer, LessonSerializer, QuizAttemptSerializer, QuizResultSerializer
+from .serializers import LetterSerializer, LessonListSerializer, LessonSerializer, QuizAttemptSerializer, QuizResultSerializer, QuizHistorySerializer
 
 # Create your views here.
 
@@ -114,7 +114,7 @@ def create_quiz_attempt(request,lesson_id):
             QuestionAttempt.objects.create(
                 quiz_attempt = quiz_attempt,
                 letter=letter,
-                question_type = "sound",
+                question_type = QuestionAttempt.SOUND,
                 prompt = f"What does {letter.character} represent?",
                 options = options,
                 correct_answer = correct_answer
@@ -172,4 +172,35 @@ def submit_quiz_attempt(request, attempt_id):
         quiz_attempt.completed_at = timezone.now()
         quiz_attempt.save()
     serializer = QuizResultSerializer(quiz_attempt)
+    return Response(serializer.data)
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def quiz_attempt_list(request):
+    attempts = (
+        QuizAttempt.objects
+        .filter(user=request.user, completed_at__isnull = False)
+        .select_related("lesson")
+        .order_by("-started_at")
+    )
+    serializer = QuizHistorySerializer(attempts, many=True)
+    return Response(serializer.data)
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def quiz_attempt_detail(request, attempt_id):
+    try:
+        attempt = (
+        QuizAttempt.objects
+        .prefetch_related("question_attempts")
+        .get(
+            id = attempt_id,
+            user = request.user,
+            completed_at__isnull = False,
+        )
+    )
+    except QuizAttempt.DoesNotExist:
+        return Response(
+            {"detail": "Quiz attempt not found."}, status=status.HTTP_404_NOT_FOUND)
+    serializer = QuizResultSerializer(attempt)
     return Response(serializer.data)

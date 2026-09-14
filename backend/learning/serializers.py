@@ -62,6 +62,7 @@ class QuizQuestionSerializer(serializers.ModelSerializer):
         model = QuestionAttempt
         fields = [
             "id",
+            "letter",
             "question_type",
             "prompt",
             "options",
@@ -72,6 +73,7 @@ class QuestionResultSerializer(serializers.ModelSerializer):
         model = QuestionAttempt
         fields = [
             "id",
+            "letter",
             "question_type",
             "prompt",
             "options",
@@ -103,4 +105,18 @@ class QuizResultSerializer(serializers.ModelSerializer):
             "started_at",
             "completed_at",
             "question_attempts",
+        ]
+
+class QuizHistorySerializer(serializers.ModelSerializer):
+    lesson_title = serializers.CharField(source = "lesson.title", read_only = True)
+    class Meta:
+        model = QuizAttempt
+        fields = [
+            "id",
+            "lesson",
+            "lesson_title",
+            "score",
+            "total_questions",
+            "started_at",
+            "completed_at",
         ]
