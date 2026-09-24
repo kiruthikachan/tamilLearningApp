@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.contrib.auth.models import User
 from .models import Letter, ExampleWord, Lesson, LessonLetter, QuestionAttempt, QuizAttempt
 
 class ExampleWordSerializer(serializers.ModelSerializer):
@@ -120,3 +121,28 @@ class QuizHistorySerializer(serializers.ModelSerializer):
             "started_at",
             "completed_at",
         ]
+
+class RegisterSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(required = True)
+    password = serializers.CharField(write_only = True)
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "username",
+            "email",
+            "password",
+        ]
+    def validate_email(self, value):
+        if User.objects.filter(email__iexact=value).exists():
+            raise serializers.ValidationError(
+                "An account with this email already exists."
+            )
+        return value
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username = validated_data["username"],
+            email = validated_data["email"],
+            password = validated_data["password"],
+        )
+        return user
