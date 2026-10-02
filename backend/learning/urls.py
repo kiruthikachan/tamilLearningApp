@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import letter_list, lesson_list, lesson_detail, create_quiz_attempt, submit_quiz_attempt, quiz_attempt_list, quiz_attempt_detail, register, login_view, current_user, logout_view
+from .views import letter_list, lesson_list, lesson_detail, create_quiz_attempt, submit_quiz_attempt, quiz_attempt_list, quiz_attempt_detail, register, login_view, current_user, logout_view, csrf_cookie
 
 urlpatterns = [
     path("letters/", letter_list, name="letter-list"),
@@ -13,4 +13,5 @@ urlpatterns = [
     path("auth/login/", login_view, name="login"),
     path("auth/me/", current_user, name="current_user"),
     path("auth/logout/", logout_view, name="logout"),
+    path ("auth/csrf/", csrf_cookie, name="csrf-cookie"),
 ]

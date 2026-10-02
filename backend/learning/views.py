@@ -4,6 +4,7 @@ from django.db.models import Prefetch
 from django.utils import timezone
 from django.contrib.auth import authenticate, login, logout
 from rest_framework.decorators import api_view, permission_classes
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
@@ -213,6 +214,7 @@ def quiz_attempt_detail(request, attempt_id):
     serializer = QuizResultSerializer(attempt)
     return Response(serializer.data)
 
+@csrf_protect
 @api_view(["POST"])
 def register(request):
     serializer = RegisterSerializer(data = request.data)
@@ -231,6 +233,7 @@ def register(request):
         status=status.HTTP_400_BAD_REQUEST
     )
 
+@csrf_protect
 @api_view(["POST"])
 def login_view(request):
     username = request.data.get("username")
@@ -271,6 +274,7 @@ def current_user(request):
         }
     )
 
+@csrf_protect
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def logout_view(request):
@@ -279,3 +283,8 @@ def logout_view(request):
         {"detail": "Logged out successfully."},
         status=status.HTTP_200_OK
     )
+
+@ensure_csrf_cookie
+@api_view(["GET"])
+def csrf_cookie(request):
+    return Response({"detail": "CSRF cookie set."})
