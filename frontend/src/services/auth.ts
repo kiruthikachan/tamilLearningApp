@@ -1,9 +1,7 @@
-import { jsx } from "react/jsx-runtime"
-
 const API_BASE_URL = "http://localhost:8000/api/v1"
 
 function getCookie(name: string): string | null {
-    const cookies = document.cookie.split(".")
+    const cookies = document.cookie.split(";")
 
     for (const cookie of cookies) {
         const trimmedCookie = cookie.trim()
@@ -63,7 +61,7 @@ export async function login (username:string, password: string) {
 
 export async function getCurrentUser () {
     const response = await fetch(
-        `${API_BASE_URL}/auth/me`,
+        `${API_BASE_URL}/auth/me/`,
         {
             method: "GET",
             credentials: "include",
@@ -90,4 +88,35 @@ export async function logout() {
     if (!response.ok) {
         throw new Error("Unable to log out.")
     }
+}
+
+export async function register(username: string, email: string, password: string){
+    const csrfToken = await getCsrfToken()
+    const response = await fetch(
+        `${API_BASE_URL}/auth/register/`,
+        {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken,
+            },
+            body: JSON.stringify({
+                username,
+                email,
+                password,
+            }),
+        }
+    )
+    const data = await response.json()
+    if(!response.ok) {
+        const message = 
+            data.email?.[0] ||
+            data.username?.[0] ||
+            data.password?.[0] ||
+            data.detail ||
+            "Unable to create account."
+        throw new Error(message)
+    }
+    return data
 }
